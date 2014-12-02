@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import logging
 class NullHandler(logging.Handler):
     def emit(self, record):
@@ -47,11 +48,11 @@ def uri2options(uri):
     '''
     options   = []
     
-    log.debug('uri      : {0}'.format(uri))
+    log.debug('uri      : %s' % (uri))
     
     # scheme
     if not uri.startswith(d.COAP_SCHEME):
-        raise e.coapMalformattedUri('does not start with {0}'.format(d.COAP_SCHEME))
+        raise e.coapMalformattedUri('does not start with %s' % (d.COAP_SCHEME))
     
     # remove scheme
     uri       = uri.split(d.COAP_SCHEME,1)[1]
@@ -89,25 +90,25 @@ def uri2options(uri):
             host   = m.group(1)
             port   = d.DEFAULT_UDP_PORT
     if (not host) or (not port):
-        raise e.coapMalformattedUri('invalid host and port {0}'.format(hostPort))
+        raise e.coapMalformattedUri('invalid host and port %s' % (hostPort))
     
     # log
-    log.debug('host     : {0}'.format(host))
-    log.debug('port     : {0}'.format(port))
+    log.debug('host     : %s' % (host))
+    log.debug('port     : %s' % (port))
     
     # remove hostPort
     uri       = uri.split(hostPort,1)[1]
     
     # Uri-path
     paths     = [p for p in uri.split('?')[0].split('/') if p]
-    log.debug('paths    : {0}'.format(paths))
+    log.debug('paths    : %s' % (paths))
     for p in paths:
         options += [o.UriPath(path=p)]
     
     # Uri-query
     if len(uri.split('?'))>1:
         queries   = [q for q in uri.split('?')[1].split('&') if q]
-        log.debug('queries  : {0}'.format(queries))
+        log.debug('queries  : %s' % (queries))
         raise NotImplementedError()
     
     host=host.lower()

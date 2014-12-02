@@ -8,13 +8,13 @@ import time
 from   coap import coap
 import logging_setup
 
-SERVER_IP = '::1'
+SERVER_IP = '127.0.0.1'
 
 # open
 c = coap.coap(udpPort=5000)
 
 # retrieve value of 'test' resource
-p = c.GET('coap://[{0}]/test'.format(SERVER_IP),)
+p = c.GET('coap://%s/test' % (SERVER_IP))
 print '====='
 print ''.join([chr(b) for b in p])
 print '====='

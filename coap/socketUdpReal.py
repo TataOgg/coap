@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import logging
 class NullHandler(logging.Handler):
     def emit(self, record):
@@ -25,7 +26,7 @@ class socketUdpReal(socketUdp.socketUdp):
         socketUdp.socketUdp.__init__(self,ipAddress,udpPort,callback)
         
         # change name
-        self.name       = 'socketUdpRead@{0}:{1}'.format(self.ipAddress,self.udpPort)
+        self.name       = 'socketUdpRead@%s:%s' % (self.ipAddress,self.udpPort)
         self.callback   = callback
         
         # local variables
@@ -35,7 +36,7 @@ class socketUdpReal(socketUdp.socketUdp):
         try:
             self.socket_handler  = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.socket_handler.bind((self.ipAddress,self.udpPort))
-        except socket.error as err:
+        except socket.error, err:
             log.critical(err)
             raise
         
@@ -73,8 +74,8 @@ class socketUdpReal(socketUdp.socketUdp):
             try:
                 # blocking wait for something from UDP socket
                 raw,conn = self.socket_handler.recvfrom(self.BUFSIZE)
-            except socket.error as err:
-                log.critical("socket error: {0}".format(err))
+            except socket.error, err:
+                log.critical("socket error: %s" % (err))
                 self.goOn = False
                 continue
             else:
@@ -90,7 +91,7 @@ class socketUdpReal(socketUdp.socketUdp):
                 source    = (conn[0],conn[1])
                 data      = [ord(b) for b in raw]
                 
-                log.debug("got {2} from {1} at {0}".format(timestamp,source,data))
+                log.debug("got %s from %s at %s" % (data, source, timestamp))
                 
                 #call the callback with the params
                 self.callback(timestamp,source,data)

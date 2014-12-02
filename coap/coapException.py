@@ -18,7 +18,7 @@ class coapException(Exception):
         self.reason   = reason
     
     def __str__(self):
-        return '{0}(reason={1})'.format(self.__class__.__name__,self.reason)
+        return '%s(reason=%s)' % (self.__class__.__name__,self.reason)
 
 #============================ timeout =========================================
 

@@ -16,17 +16,17 @@ c.ackTimeout  = 2 # sec
 c.respTimeout = 2 # sec
 
 # get status of LED
-p = c.GET('coap://[{0}]/l'.format(MOTE_IP),)
+p = c.GET('coap://[%s]/l' % (MOTE_IP),)
 print chr(p[0])
 
 # toggle debug LED
 p = c.PUT(
-    'coap://[{0}]/l'.format(MOTE_IP),
+    'coap://[%s]/l' % (MOTE_IP),
     payload = [ord('2')],
 )
 
 # read status of debug LED
-p = c.GET('coap://[{0}]/l'.format(MOTE_IP))
+p = c.GET('coap://[%s]/l' % (MOTE_IP))
 print chr(p[0])
 
 # close

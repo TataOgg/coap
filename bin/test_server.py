@@ -29,13 +29,13 @@ class testResource(coapResource.coapResource):
         return (respCode,respOptions,respPayload)
 
 # open
-c = coap.coap(ipAddress='::1')
+c = coap.coap(ipAddress='127.0.0.1')
 
 # install resource
 c.addResource(testResource())
 
 for t in threading.enumerate():
-    print t.name
+    print t.getName()
 
 # let the server run
 raw_input('\n\nServer running. Press Enter to close.\n\n')

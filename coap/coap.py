@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import logging
 class NullHandler(logging.Handler):
     def emit(self, record):
@@ -29,7 +30,7 @@ class coap(object):
         self.udpPort              = udpPort
 
         # local variables
-        self.name                 = 'coap@{0}:{1}'.format(self.ipAddress,self.udpPort)
+        self.name                 = 'coap@%s:%s' % (self.ipAddress,self.udpPort)
         self.resourceLock         = threading.Lock()
         self.tokenizer            = t.coapTokenizer()
         self.resources            = []
@@ -59,14 +60,14 @@ class coap(object):
     #===== client   
 
     def GET(self,uri,confirmable=True,options=[]):
-        log.debug('GET {0}'.format(uri))
+        log.debug('GET %s' % (uri))
         response = self._transmit(
             uri         = uri,
             confirmable = confirmable,
             code        = d.METHOD_GET,
             options     = options,
         )
-        log.debug('response: {0}'.format(response))
+        log.debug('response: %s' % (response))
         return response['payload']
 
     def PUT(self,uri,confirmable=True,options=[],payload=None):
@@ -77,7 +78,7 @@ class coap(object):
             options     = options,
             payload     = payload
         )
-        log.debug('response: {0}'.format(response))
+        log.debug('response: %s' % (response))
         return response['payload']
 
     def POST(self,uri,confirmable=True,options=[],payload=None):
@@ -88,7 +89,7 @@ class coap(object):
             options     = options,
             payload     = payload
         )
-        log.debug('response: {0}'.format(response))
+        log.debug('response: %s' (response))
         return response['payload']
 
     def DELETE(self,uri,confirmable=True,options=[]):
@@ -104,7 +105,7 @@ class coap(object):
     def addResource(self,newResource):
         assert isinstance(newResource,r.coapResource)
 
-        log.debug('{0} adding resource at path="{1}"'.format(self.name,newResource.path))
+        log.debug('%s adding resource at path="%s"' % (self.name,newResource.path))
 
         with self.resourceLock:
             self.resources += [newResource]
@@ -194,10 +195,10 @@ class coap(object):
         # all UDP packets are received here
 
         output  = []
-        output += ['\n{0} _receive message:'.format(self.name)]
-        output += ['- timestamp: {0}'.format(timestamp)]
-        output += ['- sender:    {0}'.format(sender)]
-        output += ['- bytes:     {0}'.format(u.formatBuf(rawbytes))]
+        output += ['\n%s _receive message:' % self.name]
+        output += ['- timestamp: %s' % timestamp]
+        output += ['- sender:    %s:%s' % (sender[0], sender[1]) ] # Tuple
+        output += ['- bytes:     %s' % u.formatBuf(rawbytes)]
         output  = '\n'.join(output)
         log.debug(output)
 
@@ -209,8 +210,8 @@ class coap(object):
         # parse messages
         try:
             message = m.parseMessage(rawbytes)
-        except e.messageFormatError as err:
-            log.warning('malformed message {0}: {1}'.format(u.formatBuf(rawbytes),str(err)))
+        except e.messageFormatError, err:
+            log.warning('malformed message %s: %s' % (u.formatBuf(rawbytes),str(err)))
             return
 
         # dispatch message
@@ -222,7 +223,7 @@ class coap(object):
 
                 # retrieve path
                 path = coapUri.options2path(message['options'])
-                log.debug('path="{0}"'.format(path))
+                log.debug('path="%s"' % (path))
 
                 # find resource that matches this path
                 resource = None
@@ -231,7 +232,7 @@ class coap(object):
                         if r.matchesPath(path):
                             resource = r
                             break
-                log.debug('resource={0}'.format(resource))
+                log.debug('resource=%s' % (resource))
 
                 if not resource:
                     raise e.coapRcNotFound()
@@ -259,8 +260,8 @@ class coap(object):
                             options=message['options']
                         )
                     else:
-                        raise SystemError('unexpected code {0}'.format(message['code']))
-                except Exception as err:
+                        raise SystemError('unexpected code %s' % (message['code']))
+                except Exception, err:
                     if isinstance(err,e.coapRc):
                         raise
                     else:
@@ -274,7 +275,7 @@ class coap(object):
                 elif message['type']==d.TYPE_NON:
                     responseType = d.TYPE_NON
                 else:
-                    raise SystemError('unexpected type {0}'.format(message['type']))
+                    raise SystemError('unexpected type %s' % (message['type']))
 
                 # build response packets
                 response = m.buildMessage(
@@ -317,7 +318,7 @@ class coap(object):
                             break
                 if found==False:
                     raise e.coapRcBadRequest(
-                        'could not find transmitter corresponding to {0}, transmitters are {1}'.format(
+                        'could not find transmitter corresponding to %s, transmitters are %s' % (
                             msgkey,
                             ','.join([str(k) for k in self.transmitters.keys()])
                         )
@@ -326,7 +327,7 @@ class coap(object):
             else:
                 raise NotImplementedError()
 
-        except e.coapRc as err:
+        except e.coapRc, err:
 
             # log
             log.warning(err)
@@ -337,7 +338,7 @@ class coap(object):
             elif message['type']==d.TYPE_NON:
                 responseType = d.TYPE_NON
             else:
-                raise SystemError('unexpected type {0}'.format(message['type']))
+                raise SystemError('unexpected type %s' % (message['type']))
 
             # build response packets
             response = m.buildMessage(
@@ -354,5 +355,5 @@ class coap(object):
                 msg              = response,
             )
 
-        except Exception as err:
+        except Exception, err:
             log.critical(traceback.format_exc())

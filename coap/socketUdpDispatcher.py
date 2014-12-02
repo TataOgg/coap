@@ -25,7 +25,7 @@ class socketUdpDispatcher(socketUdp.socketUdp):
         socketUdp.socketUdp.__init__(self,ipAddress,udpPort,callback)
         
         # change name
-        self.name       = 'socketUdpDispatcher@{0}:{1}'.format(self.ipAddress,self.udpPort)
+        self.name       = 'socketUdpDispatcher@%s:%s' % (self.ipAddress,self.udpPort)
         self.gotMsgSem  = threading.Semaphore()
         
         # connect to dispatcher
@@ -71,7 +71,7 @@ class socketUdpDispatcher(socketUdp.socketUdp):
         timestamp = time.time()
         
         # log
-        log.debug("got {2} from {1} at {0}".format(timestamp,sender,u.formatBuf(data)))
+        log.debug("got %s from %s at %s" % (u.formatBuf(data), timestamp, sender ))
         
         # call the callback
         self.callback(timestamp,sender,data)

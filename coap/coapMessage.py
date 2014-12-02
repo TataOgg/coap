@@ -42,7 +42,7 @@ def buildMessage(msgtype,token,code,messageId,options=[],payload=[]):
             TKL = tokenLen
             break
     if not TKL:
-        raise ValueError('token {0} too long'.format(token))
+        raise ValueError('token %s too long' % (token))
     
     # header
     message += [d.COAP_VERSION<<6 | msgtype<<4 | TKL]
@@ -71,23 +71,23 @@ def parseMessage(message):
     
     # header
     if len(message)<4:
-        raise e.messageFormatError('message to short, {0} bytes: not space for header'.format(len(message)))
+        raise e.messageFormatError('message to short, %s bytes: not space for header' % (len(message)))
     returnVal['version']     = (message[0]>>6)&0x03
     if returnVal['version']!=d.COAP_VERSION:
-        raise e.messageFormatError('invalid CoAP version {0}'.format(returnVal['version']))
+        raise e.messageFormatError('invalid CoAP version %s' % (returnVal['version']))
     returnVal['type']        = (message[0]>>4)&0x03
     if returnVal['type'] not in d.TYPE_ALL:
-        raise e.messageFormatError('invalid message type {0}'.format(returnVal['type']))
+        raise e.messageFormatError('invalid message type %s' % (returnVal['type']))
     TKL  = message[0]&0x0f
     if TKL>8:
-        raise e.messageFormatError('TKL too large {0}'.format(TKL))
+        raise e.messageFormatError('TKL too large %s' % (TKL))
     returnVal['code']        = message[1]
     returnVal['messageId']   = u.buf2int(message[2:4])
     message = message[4:]
     
     # token
     if len(message)<TKL:
-        raise e.messageFormatError('message to short, {0} bytes: not space for token'.format(len(message)))
+        raise e.messageFormatError('message to short, %s bytes: not space for token' % (len(message)))
     returnVal['token']       = u.buf2int(message[:TKL])
     message = message[TKL:]
     
@@ -104,6 +104,6 @@ def parseMessage(message):
     # payload
     returnVal['payload']     = message
     
-    log.debug('parsed message: {0}'.format(returnVal))
+    log.debug('parsed message: %s' % (returnVal))
     
     return returnVal

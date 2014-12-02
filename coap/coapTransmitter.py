@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import logging
 class NullHandler(logging.Handler):
     def emit(self, record):
@@ -135,7 +136,7 @@ class coapTransmitter(threading.Thread):
         threading.Thread.__init__(self)
 
         # give this thread a name
-        self.name            = '[{0}]:{1}--m0x{2:x},0x{3:x}-->[{4}]:{5}'.format(
+        self.name            = '[%s]:%s--m0x%s,0x%s-->[%s]:%s' % (
             self.srcIp,
             self.srcPort,
             self.messageId,
@@ -198,7 +199,7 @@ class coapTransmitter(threading.Thread):
         assert (message['token']==self.token) or (message['messageId']==self.messageId)
 
         # log
-        log.debug('receiveMessage timestamp={0} srcIp={1} srcPort={2} message={3}'.format(timestamp,srcIp,srcPort,message))
+        log.debug('receiveMessage timestamp=%s srcIp=%s srcPort=%s message=%s' % (timestamp,srcIp,srcPort,message))
 
         # turn message into exception if needed
         if message['code'] not in d.METHOD_ALL+d.COAP_RC_ALL_SUCCESS:
@@ -229,7 +230,7 @@ class coapTransmitter(threading.Thread):
                 self.fsmSem.acquire()
 
                 # log
-                log.debug('fsm state iteration: {0}'.format(self.getState()))
+                log.debug('fsm state iteration: %s' % (self.getState()))
 
                 # call the appropriate action
                 self.fsmAction[self.getState()]()
@@ -239,7 +240,7 @@ class coapTransmitter(threading.Thread):
                     if self.coapError or self.coapResponse:
                         self.endLock.release()
                         self.fsmGoOn=False
-        except Exception as err:
+        except Exception, err:
             log.critical(u.formatCrashMessage(
                     threadName = self.name,
                     error      = err
@@ -268,7 +269,7 @@ class coapTransmitter(threading.Thread):
         # flag error if max number of CON transmits reached
         if self.numTxCON>self.maxRetransmit+1:
             # this is an error case
-            self.coapError   = e.coapTimeout('No ACK received after {0} tries (max {1})'.format(
+            self.coapError   = e.coapTimeout('No ACK received after %s tries (max %s)' % (
                     self.numTxCON,
                     self.maxRetransmit+1,
                 )
@@ -438,7 +439,7 @@ class coapTransmitter(threading.Thread):
                     return
             else:
                 # this is an error case
-                self.coapError   = e.coapTimeout('No Response received after {0}s'.format(
+                self.coapError   = e.coapTimeout('No Response received after %ss' % (
                         self.respTimeout,
                     )
                 )
@@ -460,7 +461,7 @@ class coapTransmitter(threading.Thread):
             with self.dataLock:
                 self.coapResponse = message
         else:
-            raise SystemError('unexpected message type {0}'.format(message['type']))
+            raise SystemError('unexpected message type %s' % (message['type']))
 
         # kick FSM
         self._kickFsm()
@@ -503,5 +504,5 @@ class coapTransmitter(threading.Thread):
     def _setState(self,newState):
         with self.stateLock:
             self.state = newState
-        log.debug('{0}: state={1}'.format(self.name,newState))
+        log.debug('%s: state=%s' % (self.name,newState))
 

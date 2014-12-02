@@ -1,3 +1,4 @@
+from __future__ import with_statement
 from distutils.core import setup
 
 # retrieve the version number

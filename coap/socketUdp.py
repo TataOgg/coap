@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import logging
 class NullHandler(logging.Handler):
     def emit(self, record):

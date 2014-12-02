@@ -35,7 +35,7 @@ def buf2int(buf):
 #===== formatting
 
 def formatBuf(buf):
-    return '({0} bytes) {1}'.format(
+    return '(%s bytes) %s' % (
         len(buf),
         '-'.join(['%02x'%b for b in buf])
     )
@@ -43,7 +43,7 @@ def formatBuf(buf):
 def formatCrashMessage(threadName,error):
     returnVal  = []
     returnVal += ['\n']
-    returnVal += ['======= crash in {0} ======='.format(threadName)]
+    returnVal += ['======= crash in %s =======' % (threadName)]
     returnVal += ['Error:']
     returnVal += [str(error)]
     returnVal += ['\ncall stack:\n']

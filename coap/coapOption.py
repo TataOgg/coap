@@ -1,3 +1,4 @@
+from __future__ import with_statement
 import logging
 class NullHandler(logging.Handler):
     def emit(self, record):
@@ -43,7 +44,7 @@ class coapOption(object):
             optionDelta      = 14
             optionDeltaExt   = u.int2buf(delta-269,2)
         else:
-            raise ValueError('delta is too large: {0}'.format(delta))
+            raise ValueError('delta is too large: %s' % (delta))
         
         # optionLength and optionLengthExt fields
         if   len(payload)<=12:
@@ -56,7 +57,7 @@ class coapOption(object):
             optionLength     = 14
             optionLengthExt  = u.int2buf(len(payload)-269,2)
         else:
-            raise ValueError('payload is too long, {0} bytes'.format(len(payload)))
+            raise ValueError('payload is too long, %s bytes' % (len(payload)))
         
         returnVal  = []
         returnVal += [optionDelta<<4 | optionLength]
@@ -91,7 +92,7 @@ class UriPath(coapOption):
         self.path = path
     
     def __repr__(self):
-        return 'UriPath(path={0})'.format(self.path)
+        return 'UriPath(path=%s)' % (self.path)
     
     def getPayloadBytes(self):
         return [ord(b) for b in self.path]
@@ -112,10 +113,11 @@ class ContentFormat(coapOption):
         self.format = cformat[0]
     
     def __repr__(self):
-        return 'ContentFormat(format={0})'.format(self.format)
+        return 'ContentFormat(format=%s)' % (self.format)
     
     def getPayloadBytes(self):
-        return [self.format]
+	return [self.format]
+
 
 #=== OPTION_NUM_MAXAGE
 
@@ -164,10 +166,10 @@ class Block2(coapOption):
                 self.m     = (rawbytes[2]>>3)&0x01
                 self.szx   = (rawbytes[2]>>0)&0x07
             else:
-                raise ValueError('unexpected Block2 len={0}'.format(len(rawbytes)))
+                raise ValueError('unexpected Block2 len=%s' % (len(rawbytes)))
     
     def __repr__(self):
-        return 'Block2(num={0},m={1},szx={2})'.format(self.num,self.m,self.szx)
+        return 'Block2(num=%S,m=%s,szx=%s)' % (self.num,self.m,self.szx)
     
     def getPayloadBytes(self):
         return NotImplementedError()
@@ -195,7 +197,7 @@ def parseOption(message,previousOptionNumber):
     '''
     
     log.debug(
-        'parseOption message={0} previousOptionNumber={1}'.format(
+        'parseOption message=%s previousOptionNumber=%s' % (
             u.formatBuf(message),
             previousOptionNumber,
         )
@@ -223,52 +225,52 @@ def parseOption(message,previousOptionNumber):
         pass
     elif optionDelta==13:
         if len(message)<1:
-            raise e.messageFormatError('message to short, {0} bytes: not space for 1B optionDelta'.format(len(message)))
+            raise e.messageFormatError('message to short, %s bytes: not space for 1B optionDelta' % (len(message)))
         optionDelta = u.buf2int(message[0])+13
         message = message[1:]
     elif optionDelta==14:
         if len(message)<2:
-            raise e.messageFormatError('message to short, {0} bytes: not space for 2B optionDelta'.format(len(message)))
+            raise e.messageFormatError('message to short, %s bytes: not space for 2B optionDelta' % (len(message)))
         optionDelta = u.buf2int(message[0:1])+269
         message = message[2:]
     else:
-        raise e.messageFormatError('invalid optionDelta={0}'.format(optionDelta))
+        raise e.messageFormatError('invalid optionDelta=%s' % (optionDelta))
     
-    log.debug('optionDelta   = {0}'.format(optionDelta))
+    log.debug('optionDelta   = %s' % (optionDelta))
     
     # optionLength
     if   optionLength<=12:
         pass
     elif optionLength==13:
         if len(message)<1:
-            raise e.messageFormatError('message to short, {0} bytes: not space for 1B optionLength'.format(len(message)))
+            raise e.messageFormatError('message to short, %s bytes: not space for 1B optionLength' % (len(message)))
         optionLength = u.buf2int(message[0])+13
         message = message[1:]
     elif optionLength==14:
         if len(message)<2:
-            raise e.messageFormatError('message to short, {0} bytes: not space for 2B optionLength'.format(len(message)))
+            raise e.messageFormatError('message to short, %s bytes: not space for 2B optionLength' % (len(message)))
         optionLength = u.buf2int(message[0:1])+269
         message = message[2:]
     else:
-        raise e.messageFormatError('invalid optionLength={0}'.format(optionLength))
+        raise e.messageFormatError('invalid optionLength=%s' % (optionLength))
     
-    log.debug('optionLength  = {0}'.format(optionLength))
+    log.debug('optionLength  = %s' % (optionLength))
     
     # optionValue
     if len(message)<optionLength:
-        raise e.messageFormatError('message to short, {0} bytes: not space for optionValue'.format(len(message)))
+        raise e.messageFormatError('message to short, %s bytes: not space for optionValue' % (len(message)))
     optionValue = message[:optionLength]
     message = message[optionLength:]
     
-    log.debug('optionValue   = {0}'.format(u.formatBuf(optionValue)))
+    log.debug('optionValue   = %s' % (u.formatBuf(optionValue)))
     
     #===== create option
     optionNumber = previousOptionNumber+optionDelta
     
-    log.debug('optionNumber  = {0}'.format(optionNumber))
+    log.debug('optionNumber  = %s' % (optionNumber))
     
     if optionNumber not in d.OPTION_NUM_ALL:
-        raise e.messageFormatError('invalid option number {0} (0x{0:x})'.format(optionNumber))
+        raise e.messageFormatError('invalid option number %s (0x{0:x})' % (optionNumber))
     
     if   optionNumber==d.OPTION_NUM_URIPATH:
         option = UriPath(path=''.join([chr(b) for b in optionValue]))
@@ -277,6 +279,6 @@ def parseOption(message,previousOptionNumber):
     elif optionNumber==d.OPTION_NUM_BLOCK2:
         option = Block2(rawbytes=optionValue)
     else:
-        raise NotImplementedError('option {0} not implemented'.format(optionNumber))
+        raise NotImplementedError('option %s not implemented' % (optionNumber))
     
     return (option,message)
