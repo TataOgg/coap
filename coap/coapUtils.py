@@ -28,8 +28,15 @@ def int2buf(val,length):
 
 def buf2int(buf):
     returnVal  = 0
-    for i in range(len(buf)):
-        returnVal += buf[i]<<(8*(len(buf)-1-i))
+    
+    if isinstance(buf, int):
+        return buf
+    else:
+        for i in range(len(buf)):
+            returnVal += buf[i]<<(8*(len(buf)-1-i))        
+
+    
+
     return returnVal
 
 #===== formatting
