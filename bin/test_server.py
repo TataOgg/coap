@@ -29,7 +29,7 @@ class testResource(coapResource.coapResource):
         return (respCode,respOptions,respPayload)
 
 # open
-c = coap.coap(ipAddress='127.0.0.1')
+c = coap.coap(ipAddress='0.0.0.0')
 
 # install resource
 c.addResource(testResource())

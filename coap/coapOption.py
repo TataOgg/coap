@@ -169,7 +169,7 @@ class Block2(coapOption):
                 raise ValueError('unexpected Block2 len=%s' % (len(rawbytes)))
     
     def __repr__(self):
-        return 'Block2(num=%S,m=%s,szx=%s)' % (self.num,self.m,self.szx)
+        return 'Block2(num=%s,m=%s,szx=%s)' % (self.num,self.m,self.szx)
     
     def getPayloadBytes(self):
         return NotImplementedError()
