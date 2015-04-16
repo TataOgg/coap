@@ -19,11 +19,16 @@ import coapResource     as r
 import coapDefines      as d
 import coapUri
 import coapTransmitter
-from socketUdpReal       import socketUdpReal
+from socketUdpReal import socketUdpReal
+try:
+    from socketUdpSecure import socketUdpSecure
+except:
+    socketUdpSecure = False
+
 
 class coap(object):
 
-    def __init__(self,ipAddress='',udpPort=d.DEFAULT_UDP_PORT,testing=False):
+    def __init__(self,ipAddress='',udpPort=d.DEFAULT_UDP_PORT,testing=False, secure=True):
 
         # store params
         self.ipAddress            = ipAddress
@@ -38,6 +43,10 @@ class coap(object):
         self.transmitters         = {}
         self.ackTimeout           = d.DFLT_ACK_TIMEOUT
         self.respTimeout          = d.DFLT_RESPONSE_TIMEOUT
+        if secure and socketUdpSecure:
+            socketUdpSelected = socketUdpSecure
+        else:
+            socketUdpSelected = socketUdpReal
         if testing:
             from socketUdpDispatcher import socketUdpDispatcher
             self.socketUdp        = socketUdpDispatcher(
@@ -46,7 +55,7 @@ class coap(object):
                 callback          = self._receive,
             )
         else:
-            self.socketUdp        = socketUdpReal(
+            self.socketUdp        = socketUdpSelected(
                 ipAddress         = self.ipAddress,
                 udpPort           = self.udpPort,
                 callback          = self._receive,
@@ -57,7 +66,7 @@ class coap(object):
     def close(self):
         self.socketUdp.close()
 
-    #===== client   
+    #===== client
 
     def GET(self,uri,confirmable=True,options=[]):
         log.debug('GET %s' % (uri))
